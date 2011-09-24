@@ -1,79 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en"> 
 <head>
   <meta charset='utf-8'>
 
-  <title>sesejun/read-coordinate-changer @ GitHub</title>
+  <title>Read Coordinate Changer</title>
 
   <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #98ea78;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #671587; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #671587; }
-    h3 { text-align: center; color: #671587; }
-    a { color: #671587; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
-</head>
+        /* ------------------------------------------------------------------------------------------------------------- RESET */
 
-<body>
+        html, body, div, form, p,
+        code, pre { margin: 0; padding: 0; border: 0; vertical-align: baseline; }
+
+        /* ------------------------------------------------------------------------------------------------------------- TEMPLATE */
+
+        body { font: 14px/1.333 sans-serif; color: #444; background: #eee; }
+
+        a { color: #980905; }
+        a:hover, a:focus, a:active { text-decoration: none; }
+
+        h1 { margin: 0 0 0.5em; font-size: 36px; }
+        h2 { margin: 0 0 0.75em; font-size: 21px; }
+        h3 { margin: 0 0 0.333em; font-size: 16px; }
+        p { margin: 0 0 1.333em; }
+        em { font-style: italic; }
+        table { border-collapse: separate; border-spacing: 0; margin: 0; vertical-align: middle; }
+        th { font-weight: bold; }
+        th, td { padding: 5px 25px 5px 5px; text-align: left; vertical-align: middle; }
+        pre, code { font-family: monospace, sans-serif; font-size: 1em; color:#080; }
+
+        /* ------------------------------------------------------------------------------------------------------------- TEMPLATE */
+
+        .container { position:relative; overflow:hidden; width: 600px; padding: 40px 60px; border: 1px solid #ccc; margin: 40px auto 20px; background: #fff; -webkit-box-shadow: 0 0 15px rgba(0,0,0,0.1); -moz-box-shadow: 0 0 15px rgba(0,0,0,0.1); box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+
+        .container pre,
+        .container .prettyprint { padding: 0; border: 0; margin: 0 0 20px; font-size: 13px; background: #fff; }
+
+        .ribbon { position: absolute; top: -1px; right: -1px; opacity: 0.9; }
+        .ribbon:hover, .ribbon:focus, .ribbon:active { opacity: 1; }
+        .ribbon img { display: block; border: 0; }
+
+        .header { padding-right:80px; }
+
+        .section { margin: 40px 0 20px; }
+
+        .example { padding: 20px; border: 1px solid #ccc; margin: 10px -20px 20px; }
+
+        .footer { margin: 20px 0 50px; font-size: 11px; color: #666; text-align: center; }
+        .footer a { color: #666; }
+  </style>
+  <!-- import from css3 github buttons on 
+       http://nicolasgallagher.com/lab/css3-github-buttons/ -->
+  <link rel="stylesheet" href="gh-buttons.css">
+
+  <!-- prettyify -->
+  <link rel="stylesheet" href="http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css"> 
+  <script src="http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script> 
+</head>
+<body onload="prettyPrint()">
   <a href="http://github.com/sesejun/read-coordinate-changer"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
-  <div id="container">
+  <div class="container">
 
-    <div class="download">
-      <a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/sesejun/read-coordinate-changer/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    <div class="header">
+      <h1><a href="http://github.com/sesejun/read-coordinate-changer">read-coordinate-changer</a></h1>
+      Change read coordinate from your genome/gene to reference genome. Useful to compare read mapped region between closely-related species.
+    </div>
+    
+    <div class="section">
+      <h2>Requirements (Data)</h2>
+      <p>Two different ways to use read-coordinate-changer with sequence type you have</p>
+      <h3>Genome Type (You have genome sequences of both your target and reference species):</h3>
+      <ul>
+	<li>Two different genomes (Your target and reference).</li>
+	<li>Gene regions of your target genome in GFF format.</li>
+	<li>Reads of your target species.</li>
+	<li>(Option) Relationships of genes between two species.</li>
+      </ul>
+      <h3>Gene Type (You have gene sequences (including your assembled RNA sequences) and rereference genome):</h3>
+      <ul>
+	<li>Gene sequences of your target species.</li>
+	<li>Genome sequence of reference species.</li>
+	<li>Reads of your target species.</li>
+	<li>(Option) Relationships of genes between two species.
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Requirements (Softwares)</h2>
+      <ul>
+	<li>Python (>=2.6)</li>
+	<li>Short read alignment program, such as <a href="http://bio-bwa.sourceforge.net/">BWA</a> and <a href="http://bowtie-bio.sourceforge.net/index.shtml">Bowtie</a></li>
+	<li>Alignment program for long sequence, such as <a href="http://research-pub.gene.com/gmap/">GMAP/GSNAP</a></li>
+	<ul>
+	  <li>Both types of alignment programs must support SAM output because our programs use the format</li>
+	</ul>
+      </ul>
     </div>
 
-    <h1><a href="http://github.com/sesejun/read-coordinate-changer">read-coordinate-changer</a>
-      <span class="small">by <a href="http://github.com/sesejun">sesejun</a></span></h1>
+    <div class="section">
+      <h2>Simple Usage</h2>
+      <p>As example, we here compare <i>A. lyrata</i> genome and reads with <i>A. thaliana</i> genome. Python scripts will suggest you what you should do next.</p>
+      <h3>Install [First time only] </h3>
+      <p>If you have Git, you can clone latest version by running:
+	<pre>$ git clone git://github.com/sesejun/read-coordinate-changer</pre>
+      Don't worry when you do not have Git! Download the <a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">zipped codes</a> and extract it.
+      </p>
 
-    <div class="description">
-      Change read coordinate from original genome to reference genome
+      <h3>Extract gene sequences (Genome type only)</h3>
+      <p>First, extract gene sequences. The program will generate "data/Alyrata_107_geneSeq.fa" accroding to setting file.
+	<pre>python extract_seq.py</pre>
+      </p>
+      
+      <h3>Mapping the gene sequences against reference genome</h3>
+      <p>Map the sequences in "data/Alyrata_107_geneSeq.fa" onto reference genome. 
+	When you use GMAP as a mapping tool for gene sequences,
+	<pre>gmap -t15 -f samse -d thaliana data/Alyrata_107_geneSeq.fa > Alyrata_107_geneSeq.sam</pre>
+      Then, you can select the best matched sequences from the SAM file.
+	<pre>python remove_overlap.py</pre>
+      </p>
+
+      <h3>Mapping short reads against target genes/genome</h3>
+      <p>Map your reads onto target genome sequence. If you have FASTQ format sequence in "data/SRA/SRR072806.fastq" and use bwa to align the reads,
+	<pre>bwa aln Alyrata_107_RM.fa data/SRA/SRR072806.fastq > data/SRA/SRR072806.sam</pre>
+	<pre>bwa samse Alyrata_107_RM.fa data/SRA/SRR072806.sai data/SRA/SRR072806.fastq > data/SRA/SRR072806.sam</pre>
+      </p>
+
+      <h3>Change coordinate of reads accorindg to the gene sequence mapped result</h3>
+      <p>Combine gene sequence mapped result against reference sequence and read mapped result against target genes/genomes. This step requires a few hours (depend on number of reads and CPU/Disk speed).
+	<pre>python split_reads_and_annots.py</pre>
+	<pre>pyton convert_coordinate.py</pre>
+      </p>
     </div>
 
-    <h2>License</h2>
-<p>BSD Licence</p>
-<h2>Authors</h2>
-<p>Jun Sese (sesejun@cs.titech.ac.jp)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Jun Sese (sesejun@cs.titech.ac.jp)<br/>      </p>
-
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">zip</a> or
-      <a href="http://github.com/sesejun/read-coordinate-changer/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/sesejun/read-coordinate-changer</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/sesejun/read-coordinate-changer">sesejun/read-coordinate-changer</a>
+    <div class="section">
+      <h2>Detail Usage</h2>
+      <h3>Configuration File</h3>
+      All the settings including filenames used in these scripts are described in "setting.ini" file.
+      <h3>Options</h3>
+      By using -f option, you can change the configuration file.
     </div>
 
+    <div class="section">
+      <h2>License</h2>
+      <p>BSD Licence</p>
+    </div>
+    <div class="section">
+      <h2>Authors</h2>
+      <p>Akiko Izawa (izawa.akiko@sel.is.ocha.ac.jp)<br/>
+	 Jun Sese (sesejun@cs.titech.ac.jp)<br/>
+      </p>
+    </div>
+    <div>
+      <h2>Contact</h2>
+      <p>Akiko Izawa (izawa.akiko@sel.is.ocha.ac.jp)<br/>
+	 Jun Sese (sesejun@cs.titech.ac.jp)<br/>
+      </p>
+    </div>
+    <div>
+      <h2>Download</h2>
+      <p>
+	You can download this project in either
+	<a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">zip</a> or
+	<a href="http://github.com/sesejun/read-coordinate-changer/tarball/master">tar</a> formats.
+      </p>
+      <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+	by running:
+	<pre>$ git clone git://github.com/sesejun/read-coordinate-changer</pre>
+      </p>
+    </div>
+  </div>
+  <div class="footer">
+    get the source code on GitHub : <a href="http://github.com/sesejun/read-coordinate-changer">sesejun/read-coordinate-changer</a>
   </div>
 
-  
 </body>
 </html>
