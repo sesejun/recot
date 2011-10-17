@@ -38,7 +38,7 @@ def getChrSeq(fasta_file):
         else:
             seq = seq + line
     if not seq == "":
-        chseq[ch] = seq
+        chseq[ch.split()[0]] = seq
         log.info("Chromosome length of " + ch + ": " + str(len(seq)))
     return chseq
 
@@ -108,6 +108,8 @@ def makeGeneGFF(extlen, fasta_file,gff_file, outfile):
                 idnum = getID(info)
                 log.debug("Processing gene " + idnum + " at " + str(pre) + "," + str(pos) + " on " + ch)
                 # extract gene sequence
+                if (ch in chrseq) == False:
+                    continue
                 seq = chrseq[ch]
                 startpos = max(min(pre,pos)-extlen, 0)
                 endpos = min(max(pre,pos)+extlen, len(seq)-1)
