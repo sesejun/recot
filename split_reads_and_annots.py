@@ -40,9 +40,8 @@ def makeGenefiles(gff_file,geneList,rnameList):
     data1 = f_gff.read()
     f_gff.close()
     
-    lines = data1.split('\n')
     lineLists = []
-    for line in lines:
+    for line in data1.split('\n'):
         itemList = line[:-1].split('\t')
         if len(itemList) < 9:
             continue
@@ -67,7 +66,7 @@ def makeGenefiles(gff_file,geneList,rnameList):
                     else:
                         id = itemList[8]
                     if (id in geneList) == True:
-                        f[j].write(line)
+                        f[j].write("\t".join(itemList) + "\n")
         for fp in f:
             fp.close()
         prev = i
@@ -442,7 +441,7 @@ def main():
     rnameList = [] # Target Chromosome Names
     
     rnameList = getRefName(read_sam_file)
-    #getReadSamFile(read_sam_file,rnameList)
+    getReadSamFile(read_sam_file,rnameList)
     
     geneList = getGeneId(gene_sam_file)
 
