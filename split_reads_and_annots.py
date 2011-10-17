@@ -49,7 +49,7 @@ def makeGenefiles(gff_file,geneList,rnameList):
             genefile = os.path.join(working_dir, 'removeOverlap.'+chrs[j]+'.gff')
             log.info('Generating ' + genefile)
             f.append(open(genefile, "w"))
-        for line in open(gff_file):
+        for line in open(lines):
             itemList = line[:-1].split('\t')
             if len(itemList) < 9:
                 continue
@@ -125,62 +125,58 @@ def getReadSamFile(read_file,rnameList):
     """
     Separate sam file into each chromosome file
     """
-    buf = {}
-    count = 0
-    max_count = 1000000
-
-    for name in rnameList:
-        buf[name] = []
-        log.info('Initializing sam files ' + name + "(" + str(float(count)/len(rnameList))+ ")")
-        samfile = os.path.join(working_dir, 'MappedRead.'+name+'.sam')
-        f = open(samfile, "w")
-        f.close()
-        count += 1
+    size = len(rnameList)
+    prev = 0
+    ends = range(0, size, 20)
+    ends += [size]
+    ends.pop(0)
     
-    count = 0
-    total_count = 0
-    for line in open(read_file, "r"):
-        itemList = line[:-1].split('\t')
+    
+    
+    for i in ends:
+        chrs = rnameList[prev:i]
+        f = []
+        ch_p = ''
+        jj = 0
+        for j in range(0,i-prev):
+            samfile = os.path.join(working_dir, 'MappedRead.'+chrs[j]+'.sam')
+            log.info('Generating ' + samfile)
+            f.append(open(samfile, "w"))
+        for line in open(read_file, "r"):
             
-        if len(itemList) < 11:
-            continue
+            itemList = line[:-1].split('\t')
+            
+            if len(itemList) < 11:
+                continue
             #print itemList
-        if itemList[0][0:1] == '@':
-            continue
-        line_ch = itemList[2]
-        if line_ch == '*':
-            continue
-        if int(itemList[1]) & 0b100 != 0:
-            continue
-        
-        buf[line_ch].append(line)
-        if count >= max_count:
-            log.info('Processed ' + str(total_count) + " lines.")
-            for name in rnameList:
-                samfile = os.path.join(working_dir, 'MappedRead.'+name+'.sam')
-                f = open(samfile, "a")
-                lines = buf[name]
-                for line in lines:
-                    f.write(line)
-                f.close
-            count = 0
-            buf.clear
-            for name in rnameList:
-                buf[name] = []
-            log.info('Appended sam information')
+            if itemList[0][0:1] == '@':
+                continue
+            line_ch = itemList[2]
+            if line_ch == '*':
+                continue
+            if int(itemList[1]) & 0b100 != 0:
+                continue
             
-            
-        count += 1
-        total_count += 1
-
-    for name in rnameList:
-        samfile = os.path.join(working_dir, 'MappedRead.'+name+'.sam')
-        #log.info('Appending ' + samfile)
-        f = open(samfile, "a")
-        lines = buf[name]
-        for line in lines:
-            f.write(line)
-        f.close
+            if ch_p != line_ch:
+                for j in range(0,i-prev):
+                    if chrs[j] == line_ch:
+                        f[j].write(line)
+                        jj = j
+                        ch_p = line_ch
+                        continue
+                #end for j in range(0,i-prev):
+            elif ch_p == line_ch:
+                f[jj].write(line)
+            '''
+            for j in range(0,i-prev):
+                if chrs[j] == line_ch:
+                    f[j].write(line)
+                    continue
+            '''
+        f_read.close()
+        for fp in f:
+            fp.close()
+        prev = i
 
 
 def getGFFStartEnd(file, len_param):
