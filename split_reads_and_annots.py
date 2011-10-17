@@ -41,14 +41,6 @@ def makeGenefiles(gff_file,geneList,rnameList):
     f_gff.close()
     
     lines = data1.split('\n')
-    lineLists = []
-    for line in lines:
-        itemList = line[:-1].split('\t')
-        if len(itemList) < 9:
-            continue
-        if itemList[2] != 'gene':
-            continue
-        lineLists.append(itemList)
     
     for i in ends:
         chrs = rnameList[prev:i]
@@ -57,7 +49,12 @@ def makeGenefiles(gff_file,geneList,rnameList):
             genefile = os.path.join(working_dir, 'removeOverlap.'+chrs[j]+'.gff')
             log.info('Generating ' + genefile)
             f.append(open(genefile, "w"))
-        for itemList in lineLists:
+        for line in open(lines):
+            itemList = line[:-1].split('\t')
+            if len(itemList) < 9:
+                continue
+            if itemList[2] != 'gene':
+                continue
             for j in range(0,i-prev):
                 if chrs[j] == itemList[0]:
                     m = p.match(itemList[8])
@@ -442,7 +439,7 @@ def main():
     rnameList = [] # Target Chromosome Names
     
     rnameList = getRefName(read_sam_file)
-    #getReadSamFile(read_sam_file,rnameList)
+    getReadSamFile(read_sam_file,rnameList)
     
     geneList = getGeneId(gene_sam_file)
 
