@@ -16,7 +16,7 @@ from optparse import OptionParser
 def getChrSAMfile(gene_file, rnameList):
     size = len(rnameList)
     prev = 0
-    ends = range(0, size, 20)
+    ends = range(0, size, 50)
     ends += [size]
     ends.pop(0)
     for i in ends:
@@ -39,6 +39,7 @@ def getChrSAMfile(gene_file, rnameList):
         for fp in f:
             fp.close()
         prev = i
+        break
 
 def getCoorFlag(c):
     flag =  0
@@ -123,6 +124,8 @@ def getsameIDList(ch,rg_gID, gene_file):
     #newread = []
     for line in open(gene_file):
         itemList = line[:-1].split('\t')
+        if len(itemList) < 4:
+            continue
         line_id = getsubString_a(itemList[0],'|')
         line_ch = getsubString_b('|',itemList[2])
         #if (line_ch == '*') or (line_ch == ch):
@@ -285,13 +288,8 @@ def Get_gene_spos(g_pos,gs,rs,gene_coorDic,gene_cigerDic,gene_seqDic):
     seq_spos = 0
     
     coorflag = 0#0:number,1:'*'
-    
     seq_num= 0
     for gc in range(0,len(gene_coorDic)):
-        
-        
-            
-        
         if (gene_seqDic[gc] == '.') or (gene_seqDic[gc] == '*'):
             #print 'seq_spos,gc,gene_coorDic[gc],gene_cigerDic[gc],gene_seqDic[gc]',seq_spos,gc,gene_coorDic[gc],gene_cigerDic[gc],gene_seqDic[gc],'----skip--------'
             continue
@@ -299,16 +297,10 @@ def Get_gene_spos(g_pos,gs,rs,gene_coorDic,gene_cigerDic,gene_seqDic):
             #print 'seq_spos,gc,gene_coorDic[gc],gene_cigerDic[gc],gene_seqDic[gc]',seq_spos,gc,gene_coorDic[gc],gene_cigerDic[gc],gene_seqDic[gc],'gene_spos:',gene_spos
             if seq_spos == diff:
                 break
-            if gc == 0:
-                gene_spos = gc
+            if gc <= 0:
+                gene_spos = 0
             else:
                 gene_spos = gc
-            
-            
-                
-                
-                
-            
                     
             #end if seq_spos == diff:
             seq_num = gc
@@ -941,29 +933,31 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
     newciger = ''
     newpos = 0
     seq_spos = 0
-    
+    gc = gene_spos
     coorflag = 0#0:number,1:'*'
    
-    
-    
     #print 'gene_spos:',gene_spos
     
     #print 'Cigar----------'
     ss = 0
     for rc_c in range(0,len(read_coorDic)):
-        
         rc = len(read_coorDic) - rc_c-1
         #print rc,read_coorDic[rc],read_cigerDic[rc],read_seqDic[rc]
         if read_cigerDic[rc] == 'M':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
+                #for gc in range(gene_spos,len(gene_coorDic)):
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
-                    
                     #print 'gc,ss',gc,ss
                     if gc >= ss:
                         gc = ss-1
                         #print 'gc,ss',gc,ss
+                if gc < 0:
+                    break
                 if gene_cigerDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigerDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
@@ -1021,15 +1015,18 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
             #end for gc in range(gene_spos,len(gene_coorDic)):
         #end if read_cigerDic[rc] == 'M':
         
         elif read_cigerDic[rc] == 'I':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
-                    
                     #print 'gc,ss',gc,ss
                     if gc >= ss:
                         gc = ss-1
@@ -1099,10 +1096,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     baseciger = baseciger + read_cigerDic[rc]
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'I':
         
         elif read_cigerDic[rc] == 'D':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1171,10 +1172,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'D':
         
         elif read_cigerDic[rc] == 'N':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1243,10 +1248,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'N':
         
         elif read_cigerDic[rc] == 'S':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1320,10 +1329,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'S':
         
         elif read_cigerDic[rc] == 'H':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1397,10 +1410,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     baseciger = baseciger + read_cigerDic[rc]
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'H':
         
         elif read_cigerDic[rc] == 'P':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1474,10 +1491,14 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     baseciger = baseciger + read_cigerDic[rc]
                     ss = gc
                     break
+                gc += 1
         #end if read_cigerDic[rc] == 'P':
         
         if read_cigerDic[rc] == '=':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1543,11 +1564,15 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
             #end for gc in range(gene_spos,len(gene_coorDic)):
         #end if read_cigerDic[rc] == '=':
         
         if read_cigerDic[rc] == 'X':
-            for gc in range(gene_spos,len(gene_coorDic)):
+            while True:
+                gc = gene_spos
+                if gc >= len(gene_coorDic):
+                    break
                 if rc == len(read_coorDic)-1:
                     ss = gc
                 else:
@@ -1613,6 +1638,7 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigerDic,
                     gene_spos = gc - 1
                     ss = gc
                     break
+                gc += 1
             #end for gc in range(gene_spos,len(gene_coorDic)):
         #end if read_cigerDic[rc] == 'X':
         
@@ -2278,7 +2304,10 @@ def ReversegetNewCigar(reverse_seq,g_seq,gene_spos,gene_coorDic,gene_cigerDic,re
 #end def getNetCigar():
 
 def MainSubCompare(new_read_file,rnameList,SAM_atline):
-    f=open(new_read_file, "w")
+    if len(rnameList) == 1:
+        f=open(new_read_file + "." + rnameList[0], "w")
+    else:
+        f=open(new_read_file, "w")
 
     for line in SAM_atline:
         f.write(line)
@@ -2307,10 +2336,9 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             rg_rID = itemList[4]
             rs = int(itemList[5])
             read_sam  = itemList[6]
-            
+
             if rs == gs:
                 continue
-            
             
             rID = itemList[7]
             r_ciger = itemList[12]
@@ -2324,7 +2352,6 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             if id != rg_gID:
                 geneSamList = getsameIDList(ch,rg_gID, gene_file)
                 id = rg_gID
-            
             
             for g in geneSamList:
                 gene_coorDic = {}
@@ -2368,7 +2395,7 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                         position = int(g_pos)
                         seq_num = 0
                         change_pos = 0
-                        
+
                         
                         for gc in range(0,len(gene_coorDic)):
                             if (gene_cigerDic[gc] == 'S') or (gene_cigerDic[gc] == 'I') or (gene_cigerDic[gc] == 'P') or (gene_cigerDic[gc] == 'H'):
@@ -2579,6 +2606,8 @@ def main():
     parser.add_option("-c", "--config", action="store", dest="config",
                       default="settings.ini",
                       help="change config file [default: %default]")
+    parser.add_option("-n", "--number", action="store", dest="number",
+                      default="-1")
     (opt, args) = parser.parse_args()
 
     # set up logging info.
@@ -2601,6 +2630,8 @@ def main():
     config = ConfigParser.SafeConfigParser()
     config.read(config_file)
 
+    number = int(opt.number)
+
     global working_dir
     try:
         log.info("Importing settings from %s" % config_file )
@@ -2616,7 +2647,6 @@ def main():
         # To show next command
         target_fasta_file = config.get("global", "target_fasta_file")
         reference_fasta_file = config.get("global", "reference_fasta_file")
-        read_sam_file=config.get("split_reads", "read_sam_file")
     except ConfigParser.NoOptionError:
         print "Option name missing. Check your setting.ini file"
         raise
@@ -2634,7 +2664,10 @@ def main():
     rnameList = getRefName(read_sam_file,rnameList)
     getChrSAMfile(gene_sam_file,rnameList)
     SAM_header = getSAMheader(gene_sam_file)
-    MainSubCompare(out_file,rnameList,SAM_header)
+    if number == -1:
+        MainSubCompare(out_file,rnameList,SAM_header)
+    else:
+        MainSubCompare(out_file,[rnameList[number]],SAM_header)
 
     p = re.compile("(.+).[sS][aA][mM]$")
     m = p.match(out_file)
