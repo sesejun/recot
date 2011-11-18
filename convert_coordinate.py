@@ -21,7 +21,6 @@ def getChrSAMfile(gene_file, rnameList):
     ends.pop(0)
     
     
-    
     for i in ends:
         chrs = rnameList[prev:i]
         f = []
@@ -138,7 +137,7 @@ def getsubString_b(c,w):
     return w[count+1:]
 #end(def getsubString('|',itemList[0]))
 
-def getsameIDList(ch,rg_gID, gene_file):
+def getSamIDList(ch,rg_gID, gene_file):
     geneSamList = []
     #newread = []
     for line in open(gene_file):
@@ -154,7 +153,7 @@ def getsameIDList(ch,rg_gID, gene_file):
         #    newread.append(line)
     #end(for line in open(gene_file):)
     return geneSamList
-#end(getsameIDList(id, gene_file))
+#end(getSamIDList(id, gene_file))
 
 def getrnaList(rnameList, itemList):
     for x in itemList:
@@ -2377,7 +2376,7 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             newpos = 0
             
             if id != rg_gID:
-                geneSamList = getsameIDList(ch,rg_gID, gene_file)
+                geneSamList = getSamIDList(ch,rg_gID, gene_file)
                 id = rg_gID
                 if len(geneSamList) == 0:
                     log.info('No mapping: (Read)' + rg_rID  + ',(Gene)' + itemList[0] )
@@ -2803,7 +2802,7 @@ def main():
     rnameList = []
     SAM_header = []
     rnameList = getRefName(read_sam_file,rnameList)
-    #getChrSAMfile(gene_sam_file,rnameList)
+    getChrSAMfile(gene_sam_file,rnameList)
     SAM_header = getSAMheader(gene_sam_file)
     if number == -1:
         MainSubCompare(out_file,rnameList,SAM_header)

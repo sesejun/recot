@@ -175,7 +175,6 @@ def getReadSamFile(read_file,rnameList):
                     f[j].write(line)
                     continue
             '''
-        f_read.close()
         for fp in f:
             fp.close()
         prev = i

@@ -405,7 +405,7 @@ def main():
     print("\n=====")
     print("Generated new SAM format file: %s" % gene_seq_uniq)
     print("Then, you prepare files to change coordinages by running:")
-    print("$ python split_reads_and_annots.py")
+    print("$ python combine_reads_genome.py")
     print("")
     print("Before the step, if you have not map your reads agains target genes/genomes,")
     print("you have to do it now.")
