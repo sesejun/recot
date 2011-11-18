@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Convert coordinate of genes to reference genome.
+"""Convert coordinate of genes to target genome.
 """
 
 __author__ =  'Akiko Izawa and Jun Sese'
@@ -170,7 +170,7 @@ def getrnaList(rnameList, itemList):
 
 def getRefName(read_file,rnameList):
     lineList = []
-    log.info('get Reference Chromosome Names')
+    log.info('get Target Chromosome Names')
     for line in open(read_file):
         itemList = line[:-1].split('\t')
         if itemList[0][0:1] == '@':
@@ -2774,19 +2774,19 @@ def main():
     global working_dir
     try:
         log.info("Importing settings from %s" % config_file )
-        read_sam_file = config.get("split_reads", "read_sam_file")
+        read_sam_file = config.get("combine_reads", "read_sam_file")
         log.info("read_sam_file=" + read_sam_file)
         gene_sam_file = config.get("removemultiple", "gene_seq_uniq_sam")
         log.info("gene_sam_file=" + gene_sam_file)
         out_file = config.get("output", "final_sam_file")
         log.info("out_file" + out_file)
-        working_dir = config.get("split_reads", "working_dir")
+        working_dir = config.get("combine_reads", "working_dir")
         log.info("working_dir=" + working_dir)
 
         # To show next command
+        original_fasta_file = config.get("global", "original_fasta_file")
         target_fasta_file = config.get("global", "target_fasta_file")
-        reference_fasta_file = config.get("global", "reference_fasta_file")
-        read_sam_file=config.get("split_reads", "read_sam_file")
+        read_sam_file=config.get("combine_reads", "read_sam_file")
     except ConfigParser.NoOptionError:
         print "Option name missing. Check your setting.ini file"
         raise
@@ -2819,7 +2819,7 @@ def main():
     print("Finished the coordinate convert. Final SAM file is %s." % out_file)
     print("To visualize the file in IGV, you have to convert the SAM file into BAM file.")
     print("Eg.")
-    print("$ samtools view -bt %s -o your_read.bam %s" % (reference_fasta_file, out_file))
+    print("$ samtools view -bt %s -o your_read.bam %s" % (target_fasta_file, out_file))
     print("$ samtools sort your_read.bam %s" % out_bam)
     print("$ samtools index %s.bam" % out_bam)
     print("After this, you import %s.bam (and %s.bai) into IGV." % (out_bam,out_bam))

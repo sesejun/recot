@@ -89,12 +89,12 @@ def main():
     try:
         out_file = config.get("output", "final_sam_file")
         log.info("out_file" + out_file)
-        working_dir = config.get("split_reads", "working_dir")
+        working_dir = config.get("combine_reads", "working_dir")
         log.info("working_dir=" + working_dir)
 
         # to show next command
-        reference_fasta_file = config.get("global", "reference_fasta_file")
-        read_sam_file=config.get("split_reads", "read_sam_file")
+        target_fasta_file = config.get("global", "target_fasta_file")
+        read_sam_file=config.get("combine_reads", "read_sam_file")
 
     except ConfigParser.NoOptionError:
         print "Option name missing. Check your setting.ini file"
@@ -119,7 +119,7 @@ def main():
     print("Finished concatination of sam files. Final SAM file is %s." % out_file)
     print("To visualize the file in IGV, you have to convert the SAM file into BAM file.")
     print("Eg.")
-    print("$ samtools view -bt %s -o your_read.bam %s" % (reference_fasta_file, out_file))
+    print("$ samtools view -bt %s -o your_read.bam %s" % (target_fasta_file, out_file))
     print("$ samtools sort your_read.bam %s" % out_bam)
     print("$ samtools index %s.bam" % out_bam)
     print("After this, you import %s.bam (and %s.bai) into IGV." % (out_bam,out_bam))

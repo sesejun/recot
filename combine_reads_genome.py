@@ -111,7 +111,7 @@ def getRefName(read_file):
     Extract chromosome names
     '''
     rnameList = []
-    log.info("Extract Reference Chromosome Name")
+    log.info("Extract Target Chromosome Name")
     for line in open(read_file):
         itemList = line[:-1].split('\t')
         if itemList[0][0:1] == '@':
@@ -120,7 +120,7 @@ def getRefName(read_file):
                 continue
         else:
             break
-    log.info("# of reference seqs: " + str(len(rnameList)))
+    log.info("# of target seqs: " + str(len(rnameList)))
     return rnameList
 
 def getReadSamFile(read_file,rnameList):
@@ -221,12 +221,12 @@ def getSeqLength(cigar):
     '''
     CIGAR====================================================
     M 0 alignment match (can be a sequence match or mismatch) 
-    I 1 insertion to the reference 
-    D 2 deletion from the reference 
-    N 3 skipped region from the reference 
+    I 1 insertion to the target 
+    D 2 deletion from the target 
+    N 3 skipped region from the target 
     S 4 soft clipping (clipped sequences present in SEQ) 
     H 5 hard clipping (clipped sequences NOT present in SEQ) 
-    P 6 padding (silent deletion from padded reference) 
+    P 6 padding (silent deletion from padded target) 
     = 7 sequence match 
     X 8 sequence mismatch 
     ========================================================
@@ -416,11 +416,11 @@ def main():
         log.info("gene_sam_file=" + gene_sam_file)
         gff_file = config.get("extract", "gff_file")
         log.info("gff_file=" + gff_file)
-        read_sam_file = config.get("split_reads", "read_sam_file")
+        read_sam_file = config.get("combine_reads", "read_sam_file")
         log.info("read_sam_file=" + read_sam_file)
-        #final_sam_file = config.get("split_reads", "final_sam_file")
+        #final_sam_file = config.get("combine_reads", "final_sam_file")
         #log.info("final_sam_file=" + final_sam_file)
-        working_dir = config.get("split_reads", "working_dir")
+        working_dir = config.get("combine_reads", "working_dir")
         log.info("working_dir=" + working_dir)
         len_param = int(config.get("extract", "extend_length"))
         log.info("len_param=" + str(len_param))
