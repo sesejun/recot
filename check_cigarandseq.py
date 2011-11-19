@@ -11,15 +11,15 @@ import logging
 import sys, os
 import re
 from optparse import OptionParser
-def cigerLength(ciger):
-    #print 'ciger:',ciger
+def cigarLength(cigar):
+    #print 'cigar:',cigar
     num=''
-    ciger_len = 0
+    cigar_len = 0
     
     
-    for c in ciger:
+    for c in cigar:
         if c == '*':
-            ciger_len = 0
+            cigar_len = 0
             break
         if num == '':
             num = num + c
@@ -28,15 +28,15 @@ def cigerLength(ciger):
         elif c.isdigit() == False:
             #print 'c=', c, ',num=',num
             if c == 'M' or c == 'I' or c == 'S' or c == '=' or c == 'X':
-                #print '--------ciger_len:', ciger_len ,'+',int(num), '=', ciger_len + int(num)
-                ciger_len = ciger_len + int(num)
+                #print '--------cigar_len:', cigar_len ,'+',int(num), '=', cigar_len + int(num)
+                cigar_len = cigar_len + int(num)
                 
             num = ''
         
         
-    #print '----->  ciger_len:',ciger_len
-    return ciger_len
-#end(def cigerLength(ciger))
+    #print '----->  cigar_len:',cigar_len
+    return cigar_len
+#end(def cigarLength(cigar))
 
 def loadFile(file,outfile,error_file):
     
@@ -61,14 +61,14 @@ def loadFile(file,outfile,error_file):
         else:
             id = itemList[0]
             flag = int(itemList[1])
-            ciger = itemList[5]
+            cigar = itemList[5]
             seq = itemList[9]
             
-            ciger_length = cigerLength(ciger)
+            cigar_length = cigarLength(cigar)
             
-            if ciger == '*':
+            if cigar == '*':
                 f_out.write(line)
-            elif len(seq) != ciger_length:
+            elif len(seq) != cigar_length:
                 log.debug(line)
                 f_error.write(line)
             else:
@@ -118,7 +118,7 @@ def main():
 
     #home='/home/akiko/TestScript/'
     #file_name='A.lyrata.testfile.on.TAIR10.sam'
-    #print 'Check ciger and seq'
+    #print 'Check cigar and seq'
     
     #print 'file:',home+file_name
     log.info("Input File: " + args[0])
@@ -128,7 +128,7 @@ def main():
     outfile = args[1]
     errfile = args[2]
     #file='Pan_troglodytes.CHIMP2.1.64.dna.chromosome.all.geneSeq.on.Homo.all.sam'
-    #outfile=home+'check_cigerandseq.sam'
+    #outfile=home+'check_cigarandseq.sam'
     #error_file=home+'error.sam'
     loadFile(inputfile,outfile,errfile)
     print 'script end'
