@@ -109,9 +109,9 @@
       </p>
 
       <h3>Extract gene sequences</h3>
-      <p>First, extract gene sequences. "extract_seq.py" will generate "sample/dsim_geneseq.fasta" which contains gene and its regulatory regions (upstream and downstream 500bp as default).
+      <p>First, extract gene sequences. "recot_extract.py" will generate "sample/dsim_geneseq.fasta" which contains gene and its regulatory regions (upstream and downstream 500bp as default).
 	<pre>
-	  python extract_seq.py -c settings_sample.ini
+	  python recot_extract.py -c settings_sample.ini
 	</pre>
       </p>
       <img alt="Extract Gene Region" src="images/extract.png" width=602 />
@@ -125,7 +125,7 @@
 	</pre>
 	By changing gmap option "samse" to "sampe", it can handle paired end sequence.
       Then, you can select the best matched sequences from the SAM file.
-	<pre>python remove_overlap.py -c settings_sample.ini</pre>
+	<pre>python recot_rm_overlap.py -c settings_sample.ini</pre>
       </p>
       <p>
       <img alt="Alignment" src="images/align.png" />
@@ -139,8 +139,8 @@
       <h3>Change coordinate of reads according to the gene sequence mapped result</h3>
       <p>Combine gene sequence mapped result against reference sequence and read mapped result against target genes/genomes. 
 	<pre>
-	  python combine_reads_genome.py -c settings_sample.ini
-	  python convert_coordinate.py -c settings_sample.ini
+	  python recot_combine.py -c settings_sample.ini
+	  python recot_convert.py -c settings_sample.ini
 	</pre>
 	This step may require a few hours (depend on number of reads and CPU/Disk speed).
       </p>
@@ -149,7 +149,7 @@
       </p>
 
       <h3>Visualize the result</h3>
-      <p>When convert_coordinate.py is successfully finished, the script shows the way to convert the result SAM file into BAM file.
+      <p>When recot_convert.py is successfully finished, the script shows the way to convert the result SAM file into BAM file.
 	<pre>
 	  samtools view -bt sample/dmel-2R.fasta -o your_read.bam sample/ERR020078.on_dme.sam
 	  samtools sort your_read.bam sample/ERR020078.on_dme.bam
@@ -167,10 +167,10 @@
       <h3>Q. Can I transform coordinate of RNA-seq reads even when I do not have genome sequence of original species?</h3>
       <p>Yes. First, you prepare gene sequences in FASTA format (From RNA-seq reads, you can use 
       transcriptome assembly software such as Trinity and OASIS). 
-      Then, by skipping "extract_seq.py" in the above procedure and specify the result file 
+      Then, by skipping "recot_extract.py" in the above procedure and specify the result file 
       at gene_seq_file parameter in "setting.ini", you can transform coordinate of the reads.</p>
       <h3>Q. I would like to use prepared orthologous gene relationships between two species.</h3>
-      <p>remove_overlap.py can handle the orthologous genes. To use the relationships, 
+      <p>recot_rm_overlap.py can handle the orthologous genes. To use the relationships, 
 	<ol>
 	  <li>Prepare the tab delimited file containing gene-gene relation (sample/relation_dsim_dme.tsv). First column is gene name of original species, and second column is gene name of target species.</li>
 	  <li>In setting.ini, you need to change two parameters. 1. change the value of "gene_set" to the file including orthologous genes. 2. set target_gff_file, which contains gene names and their regions of target species with GFF format.</li>
@@ -181,18 +181,18 @@
       <p>Bugs in mapping software or our scripts sometime cause the problem.
       In the case, please run the following command and then use the "output.sam" instead of input.sam:
       <pre>
-	python check_cigarandseq.py input.sam output.sam errorreads.sam
+	python recot_check_cigar.py input.sam output.sam errorreads.sam
       </pre>
       </p>
       <h3>Q. I have billions of reads. Can I increase the speed of the transformation?</h3>
-      <p>If you can use SUN(Oracle) Grid Engine or Torque, you can parallelize the transformation in "convert_coordinate.py" by using array job.
+      <p>If you can use SUN(Oracle) Grid Engine or Torque, you can parallelize the transformation in "recot_convert.py" by using array job.
 	First, you need to count the number of chromosomes (contigs) of your original species (Suppose that we have 20 contigs).
-	Then, run the following command instead of running "convert_coordinate.py" (for Sun Grid Engine):
+	Then, run the following command instead of running "recot_convert.py" (for Sun Grid Engine):
 	<pre>
 	  qsub -t1-20:1 qsub_convert.sh
-	  python sam_join.py
+	  python recot_samjoin.py
 	</pre>
-	To change a setting file, you need to add "-c" in the command in qsub_convert.sh and run sam_join.py with -c option.
+	To change a setting file, you need to add "-c" in the command in qsub_convert.sh and run recot_samjoin.py with -c option.
       </p>
       
     </div>
