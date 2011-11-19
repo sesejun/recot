@@ -3,7 +3,7 @@
 <head>
   <meta charset='utf-8'>
 
-  <title>Read Coordinate Changer</title>
+  <title>RECOT: Read Coordinate Transformer</title>
 
   <style type="text/css">
         /* ------------------------------------------------------------------------------------------------------------- RESET */
@@ -18,8 +18,8 @@
         a { color: #980905; }
         a:hover, a:focus, a:active { text-decoration: none; }
 
-        h1 { margin: 0 0 0.5em; font-size: 36px; }
-        h2 { margin: 0 0 0.75em; font-size: 21px; }
+        h1 { margin: 0 0 0.5em; font-size: 24px; }
+        h2 { margin: 0 0 0.75em; font-size: 18px; }
         h3 { margin: 0 0 0.333em; font-size: 16px; }
         p { margin: 0 0 1.333em; }
         em { font-style: italic; }
@@ -57,32 +57,28 @@
   <script src="http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.js"></script> 
 </head>
 <body onload="prettyPrint()">
-  <a href="http://github.com/sesejun/read-coordinate-changer"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  <a href="http://github.com/sesejun/recot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
   <div class="container">
 
     <div class="header">
-      <h1><a href="http://github.com/sesejun/read-coordinate-changer">read-coordinate-changer</a></h1>
-      Change read coordinate from your genome/gene to reference genome. Useful to compare read mapped region between closely-related species.
+      <h1><a href="http://github.com/sesejun/recot">RECOT: Read Coordinate Transformer</a></h1>
+      Transform read coordinate from your genome/gene to other species genome. Useful to compare mapped regions of reads between closely-related species.
     </div>
+    <img alt="screen shot of RECOT result" src="images/screenshot.png" align=right />
+    
     
     <div class="section">
       <h2>Requirements (Data)</h2>
-      <p>Two different ways to use read-coordinate-changer with sequence type you have</p>
-      <h3>Genome Type (You have genome sequences of both your target and reference species):</h3>
       <ul>
-	<li>Two different genomes (Your target and reference).</li>
-	<li>Gene regions of your target genome in GFF format.</li>
-	<li>Reads of your target species.</li>
-	<li>(Option) Relationships of genes between two species.</li>
+	<li>Reads of your original species (1)</li>
+	<li>Two different genomes (Your originally experimented species and target species) (2,4)</li>
+	<li>Gene regions of your original genome in GFF format (3)</li>
+	<li>(Option) Relationships of genes between two species</li>
       </ul>
-      <h3>Gene Type (You have gene sequences (including your assembled RNA sequences) and rereference genome):</h3>
-      <ul>
-	<li>Gene sequences of your target species.</li>
-	<li>Genome sequence of reference species.</li>
-	<li>Reads of your target species.</li>
-	<li>(Option) Relationships of genes between two species.
-      </ul>
+      <p>
+      <img alt="Illustration of Input Files" src="images/inputfiles.png" width=589 />
+      </p>
     </div>
     <div class="section">
       <h2>Requirements (Softwares)</h2>
@@ -98,45 +94,102 @@
 
     <div class="section">
       <h2>Simple Usage</h2>
-      <p>As example, we here compare <i>A. lyrata</i> genome and reads with <i>A. thaliana</i> genome. Python scripts will suggest you what you should do next.</p>
+      <p>As example, we here transform coordinate of ChIP-seq reads on <i>D. simulans</i> to <i>D. melanogaster</i> genome. 
+	"sample" directory contains chromosome 2R of both <i>D. simulans</i> and <i>D. melanogaster</i>, and SAM file contains ChIP-seq result mapped onto <i>D. simulans</i> genome.
+	Scripts will suggest you the next action.
+	By changing settings in configuration file "settings.ini", 
+	you can change both input and output filenames.
+      </p>
       <h3>Install [First time only] </h3>
       <p>If you have Git, you can clone latest version by running:
-	<pre>$ git clone git://github.com/sesejun/read-coordinate-changer</pre>
-      Don't worry when you do not have Git! Download the <a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">zipped codes</a> and extract it.
+	<pre>$ git clone git://github.com/sesejun/recot</pre>
+      Don't worry when you do not have Git! Download the <a href="http://github.com/sesejun/recot/zipball/master">zipped codes</a> and extract it.
       </p>
 
-      <h3>Extract gene sequences (Genome type only)</h3>
-      <p>First, extract gene sequences. The program will generate "data/Alyrata_107_geneSeq.fa" accroding to setting file.
-	<pre>python extract_seq.py</pre>
+      <h3>Extract gene sequences</h3>
+      <p>First, extract gene sequences. "extract_seq.py" will generate "sample/dsim_geneseq.fasta" which contains gene and its regulatory regions (upstream and downstream 500bp as default).
+	<pre>python extract_seq.py -c settings_sample.ini</pre>
       </p>
+      <img alt="Extract Gene Region" src="images/extract.png" width=602 />
       
-      <h3>Mapping the gene sequences against reference genome</h3>
-      <p>Map the sequences in "data/Alyrata_107_geneSeq.fa" onto reference genome. 
-	When you use GMAP as a mapping tool for gene sequences,
-	<pre>gmap -t15 -f samse -d thaliana data/Alyrata_107_geneSeq.fa > Alyrata_107_geneSeq.sam</pre>
+      <h3>Align the gene sequences against target genome</h3>
+      <p>Map the sequences in "data/dsim_geneseq.fasta" onto target genome. 
+	We here use GMAP to map the sequences.
+	<pre>gmap_build -d dme sample/dmel-2R.fasta
+gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
+</pre>
+	By changing gmap option "samse" to "sampe", it can handle paried end sequence.
       Then, you can select the best matched sequences from the SAM file.
-	<pre>python remove_overlap.py</pre>
+	<pre>python remove_overlap.py -c settings_sample.ini</pre>
+      </p>
+      <p>
+      <img alt="Alignment" src="images/align.png" />
       </p>
 
-      <h3>Mapping short reads against target genes/genome</h3>
-      <p>Map your reads onto target genome sequence. If you have FASTQ format sequence in "data/SRA/SRR072806.fastq" and use bwa to align the reads,
-	<pre>bwa aln Alyrata_107_RM.fa data/SRA/SRR072806.fastq > data/SRA/SRR072806.sam</pre>
-	<pre>bwa samse Alyrata_107_RM.fa data/SRA/SRR072806.sai data/SRA/SRR072806.fastq > data/SRA/SRR072806.sam</pre>
+      <h3>Map short reads against target genes/genome</h3>
+      <p>Map your reads onto original genome sequence (In the running example, <i>D. simulans</i>). Mapped result file in this sample is "data/ERR020078-2R-1M.sam", 
+	which only contains reads mapped onto the begining of 1Mbp of chromosome 2R.
       </p>
 
       <h3>Change coordinate of reads accorindg to the gene sequence mapped result</h3>
-      <p>Combine gene sequence mapped result against reference sequence and read mapped result against target genes/genomes. This step requires a few hours (depend on number of reads and CPU/Disk speed).
-	<pre>python split_reads_and_annots.py</pre>
-	<pre>pyton convert_coordinate.py</pre>
+      <p>Combine gene sequence mapped result against reference sequence and read mapped result against target genes/genomes. 
+	<pre>
+	  python combine_reads_genome.py -c settings_sample.ini
+	  pyton convert_coordinate.py -c settings_sample.ini
+	</pre>
+	This step may require a few hours (depend on number of reads and CPU/Disk speed).
+      </p>
+      <p>
+      <img alt="Transform coordinate" src="images/transform.png" />
+      </p>
+
+      <h3>Visualize the result</h3>
+      <p>When convert_coordinate.py is successfully finished, the script shows the way to convert the result SAM file into BAM file.
+	<pre>
+	  samtools view -bt sample/dmel-2R.fasta -o your_read.bam sample/ERR020078.on_dme.sam
+	  samtools sort your_read.bam sample/ERR020078.on_dme.bam
+	  samtools index sample/ERR020078.on_dme.bam
+	</pre>
+	To visualize the result in IGV, you can use the ERR020078.on_dme.bam (and ERR020078.on_dme.bam.bai).
       </p>
     </div>
 
     <div class="section">
-      <h2>Detail Usage</h2>
-      <h3>Configuration File</h3>
-      All the settings including filenames used in these scripts are described in "setting.ini" file.
-      <h3>Options</h3>
-      By using -f option, you can change the configuration file.
+      <h2>FAQ</h2>
+      <h3>Q. Can I change configuration file?</h3>
+      <p>By adding option "-c", you can change the file name from "settings.ini".</p>
+
+      <h3>Q. Can I transform coordinate of RNA-seq reads even when I do not have genome sequence of original species?</h3>
+      <p>Yes. First, you prepare gene sequences in FASTA format (From RNA-seq reads, you can use 
+      transcriptome assembly software such as Trinity and OASIS). 
+      Then, by skipping "extract_seq.py" in the above procedure and specify the result file 
+      at gene_seq_file parameter in "setting.ini", you can transform coordinate of the reads.</p>
+      <h3>Q. I would like to use prepared orthologous gene relationships between two species.</h3>
+      <p>remove_overlap.py can handle the orthologous genes. To use the relationships, 
+	<ol>
+	  <li>Prepare the tab delimitted file containing gene-gene relation (sample/relation_dsim_dme.tsv). First column is gene name of original species, and second column is gene name of target species.</li>
+	  <li>In setting.ini, you need to change two parameters. 1. change the value of "gene_set" to the file including orthologous genes. 2. set target_gff_file, which contains gene names and their regions of target species with GFF format.</li>
+	</ol>
+      </p>
+      
+      <h3>Q. Samtools give up convert of SAM to BAM halfway with some errors. What's wrong?</h3>
+      <p>Bugs in mapping softwares or our scripts sometime cause the problem.
+      In the case, please run the following command and then use the "output.sam" instead of input.sam:
+      <pre>
+	python check_cigarandseq.py input.sam output.sam errorreads.sam
+      </pre>
+      </p>
+      <h3>Q. I have billions of reads. Can I increase the speed of the transformation?</h3>
+      <p>If you can use SUN(Oracle) Grid Engine or Torque, you can parallerize the transformation in "convert_coordinate.py" by using array job.
+	First, you need to count the number of chromosomes (contigs) of your original species (Suppose that we have 20 contigs).
+	Then, run the following command instead of running "convert_coordinate.py" (for Sun Grid Engine):
+	<pre>
+	  qsub -t1-20:1 qsub_convert.sh
+	  python sam_join.py
+	</pre>
+	To change a setting file, you need to add "-c" in the command in qsub_convert.sh and run sam_join.py with -c option.
+      </p>
+      
     </div>
 
     <div class="section">
@@ -144,32 +197,27 @@
       <p>BSD Licence</p>
     </div>
     <div class="section">
-      <h2>Authors</h2>
-      <p>Akiko Izawa (izawa.akiko@sel.is.ocha.ac.jp)<br/>
-	 Jun Sese (sesejun@cs.titech.ac.jp)<br/>
-      </p>
-    </div>
     <div>
       <h2>Contact</h2>
-      <p>Akiko Izawa (izawa.akiko@sel.is.ocha.ac.jp)<br/>
-	 Jun Sese (sesejun@cs.titech.ac.jp)<br/>
+      <p>Akiko Izawa (izawa.akiko_AT_sel.is.ocha.ac.jp)<br/>
+	 Jun Sese (sesejun_AT_cs.titech.ac.jp)<br/>
       </p>
     </div>
     <div>
       <h2>Download</h2>
       <p>
 	You can download this project in either
-	<a href="http://github.com/sesejun/read-coordinate-changer/zipball/master">zip</a> or
-	<a href="http://github.com/sesejun/read-coordinate-changer/tarball/master">tar</a> formats.
+	<a href="http://github.com/sesejun/recot/zipball/master">zip</a> or
+	<a href="http://github.com/sesejun/recot/tarball/master">tar</a> formats.
       </p>
       <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
 	by running:
-	<pre>$ git clone git://github.com/sesejun/read-coordinate-changer</pre>
+	<pre>$ git clone git://github.com/sesejun/recot</pre>
       </p>
     </div>
   </div>
   <div class="footer">
-    get the source code on GitHub : <a href="http://github.com/sesejun/read-coordinate-changer">sesejun/read-coordinate-changer</a>
+    get the source code on GitHub : <a href="http://github.com/sesejun/recot">sesejun/recot</a>
   </div>
 
 </body>
