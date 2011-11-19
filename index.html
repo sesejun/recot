@@ -81,7 +81,7 @@
       </p>
     </div>
     <div class="section">
-      <h2>Requirements (Softwares)</h2>
+      <h2>Requirements (Software)</h2>
       <ul>
 	<li>Python (>=2.6)</li>
 	<li>Short read alignment program, such as <a href="http://bio-bwa.sourceforge.net/">BWA</a> and <a href="http://bowtie-bio.sourceforge.net/index.shtml">Bowtie</a></li>
@@ -98,27 +98,32 @@
 	"sample" directory contains chromosome 2R of both <i>D. simulans</i> and <i>D. melanogaster</i>, and SAM file contains ChIP-seq result mapped onto <i>D. simulans</i> genome.
 	Scripts will suggest you the next action.
 	By changing settings in configuration file "settings.ini", 
-	you can change both input and output filenames.
+	you can change both input and output file names.
       </p>
       <h3>Install [First time only] </h3>
       <p>If you have Git, you can clone latest version by running:
-	<pre>$ git clone git://github.com/sesejun/recot</pre>
+	<pre>
+	  git clone git://github.com/sesejun/recot
+	</pre>
       Don't worry when you do not have Git! Download the <a href="http://github.com/sesejun/recot/zipball/master">zipped codes</a> and extract it.
       </p>
 
       <h3>Extract gene sequences</h3>
       <p>First, extract gene sequences. "extract_seq.py" will generate "sample/dsim_geneseq.fasta" which contains gene and its regulatory regions (upstream and downstream 500bp as default).
-	<pre>python extract_seq.py -c settings_sample.ini</pre>
+	<pre>
+	  python extract_seq.py -c settings_sample.ini
+	</pre>
       </p>
       <img alt="Extract Gene Region" src="images/extract.png" width=602 />
       
       <h3>Align the gene sequences against target genome</h3>
       <p>Map the sequences in "data/dsim_geneseq.fasta" onto target genome. 
 	We here use GMAP to map the sequences.
-	<pre>gmap_build -d dme sample/dmel-2R.fasta
-gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
-</pre>
-	By changing gmap option "samse" to "sampe", it can handle paried end sequence.
+	<pre>
+	  gmap_build -d dme sample/dmel-2R.fasta
+	  gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
+	</pre>
+	By changing gmap option "samse" to "sampe", it can handle paired end sequence.
       Then, you can select the best matched sequences from the SAM file.
 	<pre>python remove_overlap.py -c settings_sample.ini</pre>
       </p>
@@ -128,14 +133,14 @@ gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
 
       <h3>Map short reads against target genes/genome</h3>
       <p>Map your reads onto original genome sequence (In the running example, <i>D. simulans</i>). Mapped result file in this sample is "data/ERR020078-2R-1M.sam", 
-	which only contains reads mapped onto the begining of 1Mbp of chromosome 2R.
+	which only contains reads mapped onto the beginnings of 1Mbp of chromosome 2R.
       </p>
 
-      <h3>Change coordinate of reads accorindg to the gene sequence mapped result</h3>
+      <h3>Change coordinate of reads according to the gene sequence mapped result</h3>
       <p>Combine gene sequence mapped result against reference sequence and read mapped result against target genes/genomes. 
 	<pre>
 	  python combine_reads_genome.py -c settings_sample.ini
-	  pyton convert_coordinate.py -c settings_sample.ini
+	  python convert_coordinate.py -c settings_sample.ini
 	</pre>
 	This step may require a few hours (depend on number of reads and CPU/Disk speed).
       </p>
@@ -167,20 +172,20 @@ gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
       <h3>Q. I would like to use prepared orthologous gene relationships between two species.</h3>
       <p>remove_overlap.py can handle the orthologous genes. To use the relationships, 
 	<ol>
-	  <li>Prepare the tab delimitted file containing gene-gene relation (sample/relation_dsim_dme.tsv). First column is gene name of original species, and second column is gene name of target species.</li>
+	  <li>Prepare the tab delimited file containing gene-gene relation (sample/relation_dsim_dme.tsv). First column is gene name of original species, and second column is gene name of target species.</li>
 	  <li>In setting.ini, you need to change two parameters. 1. change the value of "gene_set" to the file including orthologous genes. 2. set target_gff_file, which contains gene names and their regions of target species with GFF format.</li>
 	</ol>
       </p>
       
       <h3>Q. Samtools give up convert of SAM to BAM halfway with some errors. What's wrong?</h3>
-      <p>Bugs in mapping softwares or our scripts sometime cause the problem.
+      <p>Bugs in mapping software or our scripts sometime cause the problem.
       In the case, please run the following command and then use the "output.sam" instead of input.sam:
       <pre>
 	python check_cigarandseq.py input.sam output.sam errorreads.sam
       </pre>
       </p>
       <h3>Q. I have billions of reads. Can I increase the speed of the transformation?</h3>
-      <p>If you can use SUN(Oracle) Grid Engine or Torque, you can parallerize the transformation in "convert_coordinate.py" by using array job.
+      <p>If you can use SUN(Oracle) Grid Engine or Torque, you can parallelize the transformation in "convert_coordinate.py" by using array job.
 	First, you need to count the number of chromosomes (contigs) of your original species (Suppose that we have 20 contigs).
 	Then, run the following command instead of running "convert_coordinate.py" (for Sun Grid Engine):
 	<pre>
@@ -212,7 +217,9 @@ gmap -f samse -d dme sample/dsim_geneseq.fasta > sample/dsim_geneseq_on_dme.sam
       </p>
       <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
 	by running:
-	<pre>$ git clone git://github.com/sesejun/recot</pre>
+	<pre>
+	  git clone git://github.com/sesejun/recot
+	</pre>
       </p>
     </div>
   </div>
