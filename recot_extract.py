@@ -174,6 +174,7 @@ def main():
     config = ConfigParser.SafeConfigParser()
     config.read(config_file)
     try:
+        target_genome = config.get("global", "target_genome")
         extlen = int(config.get("extract", "extend_length"))
         log.info("extend_length=" + str(extlen))
         fasta_file = config.get("global", "original_fasta_file")
@@ -191,7 +192,7 @@ def main():
     print("\n=====")
     print("Generated fasta format gene sequence file in %s" % gene_seq_file)
     print("with %s-bp upstream and downstream regions" % extlen)
-    print("Next step is to map the sequences against target genome.")
+    print("Next step is to map the sequences onto target genome.")
     print("Eg. gmap_build -d %s sample/dmel-2R.fasta" % target_genome)
     print("    gmap -f samse -d %s %s > %s" % (target_genome, gene_seq_file, gene_sam_file))
     print("Then, you remove redundant associations of genes by running:")
