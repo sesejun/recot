@@ -2359,6 +2359,7 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
         p_gref = ''
         p_gpos = ''
         p_greverse = ''
+        prev_rg_gID = ""
         
         for line in open(rgfile):
             itemList = line[:-1].split('\t')
@@ -2372,10 +2373,15 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             '''
             if rg_rID != 'SRR072806.1534907':
                 continue
-            '''
-            
+            '''            
+
             if rs == gs:
                 continue
+            if not prev_rg_gID == rg_gID:
+                sys.stderr.write("\n")
+                log.info('Now converting: '+ rg_gID )
+                prev_rg_gID = rg_gID
+        
             
             #print line
             rID = itemList[7]
@@ -2425,8 +2431,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
+                            sys.stderr.write(".")
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2452,8 +2458,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write(".")
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2551,8 +2557,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(reverse_cigar,reverse_seq)
-                            sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write(".")
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
@@ -2645,8 +2651,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write(".")
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
