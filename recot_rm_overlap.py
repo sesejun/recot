@@ -164,9 +164,8 @@ def getRemoveIds_geneSet(chrList, extend_length,gene_set_dic, working_dir, targe
             original_id = tid[:tid.find('@')]
             if (tid[:tid.find('@')] in gene_set_dic) == True:
                 if (gene_set_dic[original_id] in refinfo_dic) == True:
-                    log.info('gene set! (' + original_id + ', ' + gene_set_dic[original_id] + ')')
+                    log.info('Found in gene set (' + original_id + ', ' + gene_set_dic[original_id] + ')')
                     ref_itemList = refinfo_dic[gene_set_dic[original_id]][:-1].split('\t')
-                    #log.info('original:(' + ch + ',' + str(tstart) + ',' + str(tend) + ')->ref:(' + ref_itemList[0] + ',' + ref_itemList[1] + ',' + ref_itemList[2] + ')') 
                     if ch == ref_itemList[0]:
                         refstart = int(ref_itemList[1])
                         refend = int(ref_itemList[2])
@@ -178,14 +177,8 @@ def getRemoveIds_geneSet(chrList, extend_length,gene_set_dic, working_dir, targe
                         else:
                             remove_flag = 1
                     
-                    #print 'remove_flag = ' + str(remove_flag)
-                    
-                #elif (gene_set_dic[original_id] in refinfo_dic) == False:
-                    #log.info('tid:'+ tid + 'Original ID:' + original_id + '(' + str(tstart) + ',' + str(tend) + ')')
-                    #log.info('Gene set! ...But no gff line.' + gene_set_dic[original_id] )
             elif (tid[:tid.find('@')] in gene_set_dic) == False:
-                #log.info('tid:'+ tid + 'Original ID:' + original_id + '(' + str(tstart) + ',' + str(tend) + ')')
-                log.info('No gene set!')
+                log.info('No relation found.')
                 
                 
                 

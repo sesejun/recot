@@ -2797,7 +2797,7 @@ def main():
         gene_sam_file = config.get("removemultiple", "gene_seq_uniq_sam")
         log.info("gene_sam_file=" + gene_sam_file)
         out_file = config.get("output", "final_sam_file")
-        log.info("out_file" + out_file)
+        log.info("out_file=" + out_file)
         working_dir = config.get("combine_reads", "working_dir")
         log.info("working_dir=" + working_dir)
 
@@ -2817,6 +2817,8 @@ def main():
         else:
             raise
 
+    print(number)
+    sys.exit()
     rnameList = []
     SAM_header = []
     rnameList = getRefName(read_sam_file,rnameList)
@@ -2841,6 +2843,7 @@ def main():
     print("$ samtools sort your_read.bam %s" % out_bam)
     print("$ samtools index %s.bam" % out_bam)
     print("After this, you import %s.bam (and %s.bai) into IGV." % (out_bam,out_bam))
+    print("")
     
 #end(def main():)
 
