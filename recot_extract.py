@@ -196,7 +196,11 @@ def main():
     print("Eg. gmap_build -d %s sample/dmel-2R.fasta" % target_genome)
     print("    gmap -f samse -d %s %s > %s" % (target_genome, gene_seq_file, gene_sam_file))
     print("Then, you remove redundant associations of genes by running:")
-    print("$ python remove_overlap.py")
+    if config_file == "settings.ini":
+        print("$ python recot_rm_overlap.py")
+    else:
+        print("$ python recot_rm_overlap.py -c " + config_file)
+    print("")
 #end(def main():)
 
 

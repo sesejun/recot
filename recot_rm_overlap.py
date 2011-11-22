@@ -95,8 +95,6 @@ def get_refFeature(target_gff_file, gene_set_dic):
     #end(for line in open(target_gff_file):)
     #print 'length gene list:'+ str(len(geneList))
     
-    
-    
     return geneList
 #end (def get_refgene(target_gff_file))    
 
@@ -644,13 +642,18 @@ def main():
     print("\n=====")
     print("Generated new SAM format file: %s" % gene_seq_uniq)
     print("Then, you prepare files to change coordinages by running:")
-    print("$ python combine_reads_genome.py")
+    if config_file == "settings.ini":
+        print("$ python recot_combine.py")
+    else:
+        print("$ python recot_combine.py -c " + config_file)
+
     print("")
     print("Before the step, if you have not map your reads agains original genes/genomes,")
     print("you have to do it now.")
     print("\tEg.")
     print("$ bwa aln %s your_read.fastq > your_read.sai" % (target_fasta_file))
     print("$ bwa samse %s your_read.sai your_read.fastq > %s" % (original_fasta_file, read_sam_file))
+    print("")
 
 
 if __name__ == "__main__": 

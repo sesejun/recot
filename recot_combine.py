@@ -463,7 +463,11 @@ def main():
     print("=====")
     print("Successfully finished.")
     print("You next convert the read coordinate by running:")
-    print("$ python convert_coordinate.py")
+    if config_file == "settings.ini":
+        print("$ python recot_convert.py")
+    else:
+        print("$ python recot_convert.py -c " + config_file)
+    print("")
 
 if __name__ == "__main__": 
     main()
