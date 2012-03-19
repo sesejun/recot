@@ -48,10 +48,12 @@ def makeGenefiles(gff_file,geneList,rnameList):
     ends.pop(0)
     p = re.compile("ID=([^;]+);")
     
-    
+    f_gff = open(gff_file)
+    data1 = f_gff.read()
+    f_gff.close()
     
     lineLists = []
-    for line in open(gff_file):
+    for line in data1.split('\n'):
         itemList = line[:-1].split('\t')
         if len(itemList) < 9:
             continue
