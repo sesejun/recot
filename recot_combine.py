@@ -48,12 +48,10 @@ def makeGenefiles(gff_file,geneList,rnameList):
     ends.pop(0)
     p = re.compile("ID=([^;]+);")
     
-    f_gff = open(gff_file)
-    data1 = f_gff.read()
-    f_gff.close()
+    
     
     lineLists = []
-    for line in data1.split('\n'):
+    for line in open(gff_file):
         itemList = line[:-1].split('\t')
         if len(itemList) < 9:
             continue
@@ -69,6 +67,7 @@ def makeGenefiles(gff_file,geneList,rnameList):
             log.info('Generating ' + genefile)
             f.append(open(genefile, "w"))
         for itemList in lineLists:
+            
             for j in range(0,i-prev):
                 if chrs[j] == itemList[0]:
                     m = p.match(itemList[8])
@@ -76,8 +75,10 @@ def makeGenefiles(gff_file,geneList,rnameList):
                     if m:
                         id = m.group(1)
                     else:
-                        id = itemList[8]
+                        id = itemList[8][3:]
+                    #print "id: "+ id
                     if (id in geneList) == True:
+                        #print "True"
                         f[j].write("\t".join(itemList) + "\n")
         for fp in f:
             fp.close()
@@ -94,7 +95,8 @@ def getGeneId(gene_sam_file):
         itemList = line[:-1].split('\t')
         if itemList[0] == '@SQ':
             continue
-        id = getsubString(itemList[0],'|')
+        #id = getsubString(itemList[0],'|')
+        id = itemList[0]
         #flag = itemList[1]
         #rname = itemList[2]
         #pos = int(itemList[3])
@@ -206,7 +208,8 @@ def getGFFStartEnd(file, len_param):
             start = 0
         end = int(itemList[4])+len_param
         #id = getsubString(itemList[8][4:],';') # ToDo: need to check for other species
-        id = itemList[8][itemList[8].find('=')+1:itemList[8].find(';')]
+        id = itemList[8][3:]
+        #id = itemList[8][itemList[8].find('=')+1:itemList[8].find(';')]
         dicS[id]= start
         dicE[id]= end
         direct[id] = itemList[6]
@@ -285,7 +288,6 @@ def getSAMStartEnd(file):
     readE = {}
     readDic = {}
     for line in open(file):
-        #print line
         itemList = line[:-1].split('\t')
         id = itemList[0]
         flag = int(itemList[1])
@@ -359,6 +361,7 @@ def getReadOnGeneFile(rnameList, len_param):
                 rID = sortReadId[y]
                 rs = readS.get(rID)
                 re = readE.get(rID)
+                
                 if rs >= gs:
                     if re <= ge:
                         f.write(gID)
@@ -448,16 +451,29 @@ def main():
         else:
             raise
 
+    
+    argvs = sys.argv
+    argc = len(argvs)
+    #print argvs
+    #print argc
     geneList = []
     rnameList = [] # Target Chromosome Names
     
     rnameList = getRefName(read_sam_file)
-    getReadSamFile(read_sam_file,rnameList)
+    log.info("rnamList size: " + str(len(rnameList)))
+    log.info("Analyse rnameList start: " + argvs[1])
+    log.info("Analyse rnameList end: " + argvs[2])
+    start = int(argvs[1])
+    end = int(argvs[2])
+    rnameList = rnameList[start:end]
+    log.info("Analyse rnameList: " + str(len(rnameList)))
     
+    getReadSamFile(read_sam_file,rnameList)
     geneList = getGeneId(gene_sam_file)
-
+    log.info("geneID:"+ str(len(geneList)))
     makeGenefiles(gff_file,geneList,rnameList)
     getReadOnGeneFile(rnameList,len_param)
+    
     
 
     print("=====")

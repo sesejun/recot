@@ -52,8 +52,8 @@ def getChrSAMfile(gene_file, rnameList):
             if len(itemList) < 11:
                 continue
             
-            line_ch = getsubString_b('|',itemList[0])
-                    
+            #line_ch = getsubString_b('|',itemList[0])
+            line_ch = itemList[0]
             
             if ch_p != line_ch:
                 for j in range(0,i-prev):
@@ -430,7 +430,7 @@ def getNewCigar_Foward_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,r
     
     coorflag = 0#0:number,1:'*'
    
-    
+    log.info("getNewCigar_Foward_Foward")
     
     #print 'gene_spos:',gene_spos
     
@@ -986,128 +986,111 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
         rc = len(read_coorDic) - rc_c-1
         #print rc,read_coorDic[rc],read_cigarDic[rc],read_seqDic[rc]
         if read_cigarDic[rc] == 'M':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                
-                
+            gc = gene_spos
+            while gc >= 0:
                 
                 if (rc == 0) and (gc == -1):
                     break
                 
+                ##print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
-                    ##print 'ss',ss
+                    gene_spos = gc -1
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
-                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    asecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
-                elif gene_cigarDic[gc] == 'S':
-                    if gene_coorDic[gc] != '*':
-                             newpos = int(gene_coorDic[gc])
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
+                elif gene_cigarDic[gc] == 'S':
+                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
+                    if gene_coorDic[gc] != '*':
+                             newpos = int(gene_coorDic[gc])
+                    basecigar = basecigar + gene_cigarDic[gc]
+                    gene_spos = gc - 1
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
                 elif gene_cigarDic[gc] == '=':
+                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
                 elif gene_cigarDic[gc] == 'X':
+                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
                 
-                
-            #end for gc in range(gene_spos,len(gene_coorDic)):
         #end if read_cigarDic[rc] == 'M':
         
         elif read_cigarDic[rc] == 'I':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
-                if gene_cigarDic[gc] == 'M':
-                    if gene_coorDic[gc] != '*':
-                             newpos = int(gene_coorDic[gc])
-                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
                     break
-                elif gene_cigarDic[gc] == 'I':
+                
+                #print gene_spos
+                if gene_cigarDic[gc] == 'M':
+                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    break
+                
+                elif gene_cigarDic[gc] == 'I':
+                    #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
+                    if gene_coorDic[gc] != '*':
+                             newpos = int(gene_coorDic[gc])
+                    basecigar = basecigar + read_cigarDic[rc]
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1115,92 +1098,84 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'S'
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
+                
         #end if read_cigarDic[rc] == 'I':
         
         elif read_cigarDic[rc] == 'D':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'H'
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    basecigar = basecigar + gene_cigarDic[gc]
+                    basecigar = basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1208,51 +1183,47 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
         #end if read_cigarDic[rc] == 'D':
         
         elif read_cigarDic[rc] == 'N':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'H'
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1260,19 +1231,17 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1280,68 +1249,56 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
         #end if read_cigarDic[rc] == 'N':
         
         elif read_cigarDic[rc] == 'S':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
+                    if gene_coorDic[gc] != '*':
+                             newpos = int(gene_coorDic[gc])
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    if gene_coorDic[gc] != '*':
-                             newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'H'
-                    gene_spos = gc - 1
-                    ss = gc
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    if gene_coorDic[gc] != '*':
-                             newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'H'
-                    gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'S'
-                    gene_spos = gc + 1
-                    ss = gc
+                    gene_spos = gc - 1
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + 'H'
-                    gene_spos = gc - 1
-                    ss = gc
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    if gene_coorDic[gc] != '*':
-                             newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1349,7 +1306,6 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1357,222 +1313,200 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
         #end if read_cigarDic[rc] == 'S':
         
         elif read_cigarDic[rc] == 'H':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    gene_spos = gc - 1
-                    ss = gc
+                    gene_spos = gc  -1
                     break
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
         #end if read_cigarDic[rc] == 'H':
         
         elif read_cigarDic[rc] == 'P':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    gene_spos = gc - 1
-                    ss = gc
+                    gene_spos = gc  -1
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
-                    gene_spos = gc - 1
-                    ss = gc
+                    gene_spos = gc  -1
                     break
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
-                    gene_spos = gc - 1
-                    ss = gc
+                    gene_spos = gc  - 1
                     break
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gene_spos = gc  - 1
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + read_cigarDic[rc]
-                    ss = gc
+                    gene_spos = gc  - 1
                     break
         #end if read_cigarDic[rc] == 'P':
         
         if read_cigarDic[rc] == '=':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    #print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                ##print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc -1
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
-                    asecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    basecigar = basecigar + gene_cigarDic[gc]
+                    gene_spos = gc - 1
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1580,69 +1514,67 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
-            #end for gc in range(gene_spos,len(gene_coorDic)):
+                
         #end if read_cigarDic[rc] == '=':
         
         if read_cigarDic[rc] == 'X':
-            for gc in range(gene_spos,len(gene_coorDic)):
-                if rc == len(read_coorDic)-1:
-                    ss = gc
-                else:
-                    
-                    ##print 'gc,ss',gc,ss
-                    if gc >= ss:
-                        gc = ss-1
-                        #print 'gc,ss',gc,ss
-                        
+            gc = gene_spos
+            while gc > 0:
+                
+                if (rc == 0) and (gc == -1):
+                    break
+                
+                #print gene_spos
                 if gene_cigarDic[gc] == 'M':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
+                
                 elif gene_cigarDic[gc] == 'I':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'D':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc -1
+                    gc = gc - 1
                 elif gene_cigarDic[gc] == 'N':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'S':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
                     break
                 elif gene_cigarDic[gc] == 'H':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
+                    gc = gc -1
                 elif gene_cigarDic[gc] == 'P':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     basecigar = basecigar + gene_cigarDic[gc]
-                    ss = gc
+                    gene_spos = gc - 1
                 elif gene_cigarDic[gc] == '=':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
                     if gene_coorDic[gc] != '*':
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
                 elif gene_cigarDic[gc] == 'X':
                     #print '-------------',gc,gene_coorDic[gc],gene_cigarDic[gc],gene_seqDic[gc]
@@ -1650,9 +1582,8 @@ def getNewCigar_Reverse_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,
                              newpos = int(gene_coorDic[gc])
                     basecigar = basecigar + gene_cigarDic[gc]
                     gene_spos = gc - 1
-                    ss = gc
+                    gc = gc -1
                     break
-                
                 
                 
             #end for gc in range(gene_spos,len(gene_coorDic)):
@@ -2359,9 +2290,9 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
         p_gref = ''
         p_gpos = ''
         p_greverse = ''
-        prev_rg_gID = ""
         
         for line in open(rgfile):
+            #print line
             itemList = line[:-1].split('\t')
             rg_gID = itemList[0]
             gs = int(itemList[1])
@@ -2373,15 +2304,10 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             '''
             if rg_rID != 'SRR072806.1534907':
                 continue
-            '''            
-
+            '''
+            
             if rs == gs:
                 continue
-            if not prev_rg_gID == rg_gID:
-                sys.stderr.write("\n")
-                log.info('Now converting: '+ rg_gID )
-                prev_rg_gID = rg_gID
-        
             
             #print line
             rID = itemList[7]
@@ -2393,14 +2319,17 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             newcigar = ''#read new cigar
             newpos = 0
             
+            print "(id,rg_gID)",id,rg_gID
             if id != rg_gID:
+                print "id != rg_gID"
+                print gene_file
                 geneSamList = getSamIDList(ch,rg_gID, gene_file)
                 id = rg_gID
                 if len(geneSamList) == 0:
                     log.info('No mapping: (Read)' + rg_rID  + ',(Gene)' + itemList[0] )
                     continue
                 
-                
+            #print "Number of genes: " + str(len(geneSamList))
             for g in geneSamList:
                 g_itemList = g[:-1].split('\t')
                 gID = getsubString_a(g_itemList[0],'|')
@@ -2431,8 +2360,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write(".")
-                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
+                            sys.stderr.write("\n")
+                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2458,8 +2387,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write(".")
-                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write("\n")
+                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2557,8 +2486,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(reverse_cigar,reverse_seq)
-                            sys.stderr.write(".")
-                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write("\n")
+                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
@@ -2651,8 +2580,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_cigarDic = {}
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
-                            sys.stderr.write(".")
-                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            sys.stderr.write("\n")
+                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
@@ -2797,7 +2726,7 @@ def main():
         gene_sam_file = config.get("removemultiple", "gene_seq_uniq_sam")
         log.info("gene_sam_file=" + gene_sam_file)
         out_file = config.get("output", "final_sam_file")
-        log.info("out_file=" + out_file)
+        log.info("out_file" + out_file)
         working_dir = config.get("combine_reads", "working_dir")
         log.info("working_dir=" + working_dir)
 
@@ -2817,18 +2746,30 @@ def main():
         else:
             raise
 
-    print(number)
-    sys.exit()
+    argvs = sys.argv
+    argc = len(argvs)
+    #print argvs
+    #print argc
     rnameList = []
     SAM_header = []
     rnameList = getRefName(read_sam_file,rnameList)
+    log.info("rnamList size: " + str(len(rnameList)))
+    log.info("Analyse rnameList start: " + argvs[1])
+    log.info("Analyse rnameList end: " + argvs[2])
+    start = int(argvs[1])
+    end = int(argvs[2])
+    rnameList = rnameList[start:end]
+    out_file = out_file + "." + str(start) + "-" + str(end)
+    
     getChrSAMfile(gene_sam_file,rnameList)
+    
     SAM_header = getSAMheader(gene_sam_file)
     if number == -1:
         MainSubCompare(out_file,rnameList,SAM_header)
     else:
         MainSubCompare(out_file,[rnameList[number]],SAM_header)
-
+        
+    
     p = re.compile("(.+).[sS][aA][mM]$")
     m = p.match(out_file)
     out_bam = out_file
@@ -2843,7 +2784,6 @@ def main():
     print("$ samtools sort your_read.bam %s" % out_bam)
     print("$ samtools index %s.bam" % out_bam)
     print("After this, you import %s.bam (and %s.bai) into IGV." % (out_bam,out_bam))
-    print("")
     
 #end(def main():)
 

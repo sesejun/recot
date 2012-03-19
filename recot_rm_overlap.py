@@ -47,6 +47,8 @@ def removerid(sam_file, outfile, ridList,startDic):
     f=open(outfile, "w")
     for line in open(sam_file):
         itemList = line[:-1].split('\t')
+        if len(itemList) < 11:
+            continue
         if itemList[0][0:1] == '@':
             f.write(line)
             continue
@@ -260,6 +262,7 @@ def getRemoveIds_no_geneSet(chrList, extend_length, working_dir):
         endDic = {}#{id,end}
         sortidList = []#id
         scount = 0#stop counter
+    
         for line in open(os.path.join(working_dir, 'chrfile.'+ ch + '.tab')):
             #print line
             itemList = line[:-1].split('\t')
@@ -324,6 +327,213 @@ def getRemoveIds_no_geneSet(chrList, extend_length, working_dir):
     f.close()
     return ridList,allstartDic
     
+def bedFlag(z,tstart,tend,sortidList_bed,startDic_bed,endDic_bed):
+    his_start = 0
+    his_end = 0
+    flag = 0
+    z = 0
+    while z < len(sortidList_bed):
+        id_bed = sortidList_bed[z]
+        start_bed= startDic_bed[id_bed]
+        end_bed = endDic_bed[id_bed]
+                
+        if start_bed > tend:
+            #print "BED flag: " + str(flag)
+            break
+        elif tstart > end_bed:
+            next
+        else:
+            if (his_start == start_bed) and (his_end == end_bed):
+                next
+            else:
+                flag = 1
+                #print z,': ',id_bed,start_bed,end_bed
+            his_start = start_bed
+            his_end = end_bed
+        #else:
+        z = z + 1
+    return flag
+
+def getRemoveIds_BEDfile(chrList, extend_length, working_dir):
+    """
+    Remove gene sequence that are overlapped with other gene sequences.
+    """
+    sameid_c = 0#same id count
+    allstartDic = {}
+    ridList = []#remove id list
+    log.info("getRemoveIds_BEDfile")
+    print "chrList: "+str(len(chrList))
+    
+    for ch in chrList:
+        startDic = {}#{id,start}
+        endDic = {}#{id,end}
+        sortidList = []#id
+        
+        startDic_bed = {}#{id,start}
+        endDic_bed = {}#{id,end}
+        sortidList_bed = []#id
+        log.info('chrfile.'+ ch + '.tab')
+        for line in open(os.path.join(working_dir, 'chrfile.'+ ch + '.tab')):
+            #print line
+            itemList = line[:-1].split('\t')
+            id = itemList[1]
+            start = int(itemList[2])
+            end = int(itemList[3])
+            startDic[id+'@'+str(sameid_c)] = start
+            endDic[id+'@'+str(sameid_c)] = end
+            sameid_c = sameid_c + 1
+            
+        #sort number by start positions
+        count = 0
+        # we might use argsort
+        sortidList = [k for (k,v) in sorted(startDic.items(), key=lambda x:x[1])]
+        #for (k,v) in sorted(startDic.items(), key=lambda x:x[1])
+        #    #print k,v
+        #    sortidList.append(k)
+        #    count = count + 1
+        #end(for k,v in sorted(startDic.items(), key=lambda x:x[1]):
+        
+        sameid_c_bed = 0
+        log.info( 'chrbedfile.'+ch+'.bed')
+        for line in open(os.path.join(working_dir, 'chrbedfile.'+ch+'.bed')):
+            itemList = line[:-1].split('\t')
+            start_bed = int(itemList[1])
+            end_bed = int(itemList[2])
+            startDic_bed[str(sameid_c_bed)] = start_bed
+            endDic_bed[str(sameid_c_bed)] = end_bed
+            sameid_c_bed = sameid_c_bed + 1
+            #break
+        sortidList_bed = [k for (k,v) in sorted(startDic_bed.items(), key=lambda x:x[1])]
+        
+        
+        #compare id
+        x = 0
+        y = 0
+        z = 0
+        testline = 0
+        last_idx = len(sortidList)
+        x_z = 0
+        y_z = 0
+        
+        while x < last_idx:
+            tid = sortidList[x]#original id
+            tstart = startDic[tid]#original start
+            tend = endDic[tid]#original end
+            
+            #print "original:",tid,tstart,tend
+            tbed_flag = 0
+            cbed_flag = 0
+            selectFlag = 0#select 1, not select 0
+            tbed_flag= bedFlag(x_z,tstart, tend,sortidList_bed,startDic_bed,endDic_bed)
+            
+            if tbed_flag == 1:
+                selectFlag = 1
+                #print "target selectFlag : ", selectFlag
+                
+                
+            
+                
+                
+            testline = testline + 1
+            if testline == 500:
+                break
+            y = x + 1
+            cbed_flag = 0
+            remain_id = ''
+            remain_start = 0
+            while y < last_idx:
+                cid = sortidList[y]
+                cstart = startDic[cid]
+                cend = endDic[cid]
+                overlap_len = tend - cstart
+                if overlap_len < 0:
+                    # no overlapped region between tid and cid
+                    break
+                if tstart < cstart and cend < tend:
+                    # if cid is completely inside of tid,
+                    # remove tid because it may have long intron.
+                    # However, this procedure might cause the problem
+                    # when it has very short mapped region.
+                    # We have to change the algorithm to select the best one
+                    
+                    
+                    
+                    if selectFlag == 1:
+                        #print "Remove: ", cid
+                        allstartDic[cid] = cstart
+                        if (getsubString(cid,'@') in ridList) == False:
+                            ridList.append(getsubString(cid,'@'))
+                    elif selectFlag == 0:
+                        #print "1 we must choice one best read"
+                        
+                        cbed_flag= bedFlag(y_z,cstart, cend,sortidList_bed,startDic_bed,endDic_bed)
+                        #print '------', cbed_flag
+                        if cbed_flag == 0:
+                            remain_id = cid
+                            remain_start = cstart
+                            allstartDic[cid] = cstart
+                            if (getsubString(cid,'@') in ridList) == False:
+                                ridList.append(getsubString(cid,'@'))
+                        elif cbed_flag == 1:
+                            selectFlag = 1
+                            allstartDic[tid] = tstart
+                            if (getsubString(tid,'@') in ridList) == False:
+                                ridList.append(getsubString(tid,'@'))
+                            remain_id = cid
+                            remain_start = cstart
+                            allstartDic[cid] = cstart
+                            if (getsubString(cid,'@') in ridList) == False:
+                                ridList.append(getsubString(cid,'@'))
+                    
+                    
+                    
+                    
+                elif (overlap_len > 2*extend_length + MARGIN) or (float(overlap_len)/float(tend-tstart) > 0.5):
+                    # tail of "tid" is overlapped with head of cid
+                    cbed_flag= bedFlag(y_z,cstart, cend,sortidList_bed,startDic_bed,endDic_bed)
+                    #print "compare BED flag: " + str(cbed_flag),getsubString(cid,'@')
+                    if selectFlag == 1:
+                        #print "2another read will remove."
+                        #print "Remove: ", cid
+                        allstartDic[cid] = cstart
+                        if (getsubString(cid,'@') in ridList) == False:
+                            ridList.append(getsubString(cid,'@'))
+                    elif selectFlag == 0:
+                        #print "2we must choice one best read"
+                        cbed_flag= bedFlag(y_z,cstart, cend,sortidList_bed,startDic_bed,endDic_bed)
+                        #print '------', cbed_flag
+                        if cbed_flag == 0:
+                            remain_id = cid
+                            remain_start = cstart
+                            allstartDic[cid] = cstart
+                            if (getsubString(cid,'@') in ridList) == False:
+                                ridList.append(getsubString(cid,'@'))
+                        elif cbed_flag == 1:
+                            selectFlag = 1
+                            allstartDic[tid] = tstart
+                            if (getsubString(tid,'@') in ridList) == False:
+                                ridList.append(getsubString(tid,'@'))
+                            remain_id = cid
+                            remain_start = cstart
+                            allstartDic[cid] = cstart
+                            if (getsubString(cid,'@') in ridList) == False:
+                                ridList.append(getsubString(cid,'@'))
+                    
+                elif tend < cstart:
+                    break
+                y += 1
+                
+                if (selectFlag == 0) and (cbed_flag == 0):
+                    #print '(selectFlag == 0) and (cbed_flag == 0)'
+                    if (getsubString(remain_id,'@') in ridList) == True:
+                         #print "remove from ridList: ", getsubString(remain_id,'@')
+                         ridList.remove(getsubString(remain_id,'@'))
+                         del allstartDic[cid]
+            x += 1
+        ridList = list(set(ridList))
+        #break
+    #end ( for ch in chrList:)
+    return ridList,allstartDic
 
 def getsubString(w, c):
     """
@@ -370,15 +580,19 @@ def samToGFF(sam_file, gff_uniq_file, target_genome):
     chrList = []
     for line in open(sam_file):
         fileline = fileline + 1
+        
         if line[0] == '#':
             continue
         if line[0] == '@':
             continue
         itemList = line[:-1].split('\t')
+        if len(itemList) < 11:
+            continue
         csum = 0
         if itemList[2] == '*':
             continue
         #log.info("ID=" + itemList[0])
+        
         ids = itemList[0].split("|")
         idname = ids[0]
         idList.append(idname)
@@ -478,14 +692,12 @@ def samToGFF(sam_file, gff_uniq_file, target_genome):
             count = count + 1
             #break
             #print 'id=',id,  '(start, end):', pos, csum
-        f.write("\t".join([rname,target_genome,'gene',str(pos), str(csum),
-                           '.', '.', '.', 'ID='+idname]) + '\n')
+        #f.write("\t".join([rname,target_genome,'gene',str(pos), str(csum),'.', '.', '.', 'ID='+idname]) + '\n')
     f.close()    
     #Compare(chrList, gff_uniq_file)
     chrList = list(set(chrList))
     chrList.sort()
     return chrList
-                
 def addRnameList(rnameList, itemList):
     """
     Add new chromosome to a list of target chromosomes
@@ -497,7 +709,7 @@ def addRnameList(rnameList, itemList):
             ch = x[3:]
             if (ch in rnameList) == False:
                 rnameList.append(ch)
-                break
+                #break
     return rnameList
 
 def getRefName(read_file,rnameList):
@@ -534,6 +746,50 @@ def get_geneSetDic(gene_set_file):
     return dic
 #end (get_geneSetDic(gene_set))
 
+def getChrBedFile(target_bed, rnameList):
+    
+    
+    size = len(rnameList)
+    prev = 0
+    ends = range(0, size, 20)
+    ends += [size]
+    ends.pop(0)
+    
+    
+    lineLists = []
+    for line in open(target_bed):
+        itemList = line[:-1].split('\t')
+        #print itemList[0]
+        lineLists.append(line)
+
+    
+    fileline = 0
+    for i in ends:
+        chrs = rnameList[prev:i]
+        f = []
+        ch_p = ''
+        jj = 0
+        for j in range(0,i-prev):
+            bedfile = os.path.join(working_dir, 'chrbedfile.'+chrs[j]+'.bed')
+            log.info('Generating ' + bedfile)
+            f.append(open(bedfile, "w"))
+        
+        for line in lineLists:
+            itemList = line[:-1].split('\t')
+            chr_bed = itemList[0]
+            for j in range(0,i-prev):
+                if chrs[j] == itemList[0]:
+                    f[j].write(line)
+            #for j in range(0,i-prev):
+        #for line in lineLists:
+        
+        for fp in f:
+            fp.close()
+        fileline = fileline + 1
+        prev = i
+    
+        
+# end (getChrBedFile(target_bed):)
 
 def main():
     """
@@ -586,9 +842,11 @@ def main():
         gff_uniq_file = config.get("removemultiple", "gff_uniq_file")
         log.info("gff_uniq_file=" + gff_uniq_file)
         target_gff_file = config.get("removemultiple","target_gff_file")
-        log.info("target_fgg_file=" + target_gff_file)
+        log.info("target_gff_file=" + target_gff_file)
         gene_set = config.get("removemultiple","gene_set")
         log.info("gene_set=" + gene_set)
+        target_bed = config.get("removemultiple","target_bed")
+        log.info("target_bed=" + target_bed)
         working_dir = config.get("removemultiple", "working_dir")
         # To show next command
         original_fasta_file = config.get("global", "original_fasta_file")
@@ -606,18 +864,27 @@ def main():
         else:
             raise
 
+    global working_dir
     chrList = []
     geneset_dic = {}
     log.info("Convert SAM file to GFF")
     chrList = samToGFF(gene_seq_sam, gff_uniq_file, target_genome)
     log.info("Extract Chromosome Names")
-    getRefName(gene_seq_sam, chrList)
+    rnameList = getRefName(gene_seq_sam, chrList)
     log.info("Extract Chromosome Names")
     makeChrFile(chrList, gff_uniq_file, working_dir)
     log.info("Find Overlapped Regions")
+    
+    
     if gene_set == 'no':
         log.info("Not use gene sets")
-        ridList,startDic = getRemoveIds_no_geneSet(chrList, extend_length, working_dir)
+        if target_bed == 'no':
+            ridList,startDic = getRemoveIds_no_geneSet(chrList, extend_length, working_dir)
+        else:
+            log.info("Use target bed file")
+            getChrBedFile(target_bed, rnameList)
+            ridList,startDic = getRemoveIds_BEDfile(chrList, extend_length, working_dir)
+        
     else:
         log.info("Use gene sets")
         geneset_dic = get_geneSetDic(gene_set)
@@ -625,10 +892,11 @@ def main():
         log.info("Number of gene sets:"+str(geneset_size))
         ridList,startDic = getRemoveIds_geneSet(chrList, extend_length,geneset_dic, working_dir, target_gff_file)
         
-        
+       
     log.info("Remove Overlaps")
     removerid(gene_seq_sam, gene_seq_uniq,ridList,startDic)
     log.info("Result File is " + gene_seq_uniq)
+    
     
     #shutil.rmtree(working_dir)
 
