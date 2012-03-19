@@ -52,9 +52,9 @@ def getChrSAMfile(gene_file, rnameList):
             if len(itemList) < 11:
                 continue
             
-            #line_ch = getsubString_b('|',itemList[0])
-            line_ch = itemList[0]
-            
+            line_ch = getsubString_b('|',itemList[0])
+            #line_ch = itemList[0]
+            #print line_ch
             if ch_p != line_ch:
                 for j in range(0,i-prev):
                     if chrs[j] == line_ch:
@@ -430,7 +430,7 @@ def getNewCigar_Foward_Foward(g_pos,gs,rs,gene_spos,gene_coorDic,gene_cigarDic,r
     
     coorflag = 0#0:number,1:'*'
    
-    log.info("getNewCigar_Foward_Foward")
+    #log.info("getNewCigar_Foward_Foward")
     
     #print 'gene_spos:',gene_spos
     
@@ -2254,7 +2254,7 @@ def ReversegetNewCigar(reverse_seq,g_seq,gene_spos,gene_coorDic,gene_cigarDic,re
 
 def MainSubCompare(new_read_file,rnameList,SAM_atline):
     if len(rnameList) == 1:
-        f=open(new_read_file + "." + rnameList[0], "w")
+        f=open(new_read_file, "w")
     else:
         f=open(new_read_file, "w")
 
@@ -2319,10 +2319,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
             newcigar = ''#read new cigar
             newpos = 0
             
-            print "(id,rg_gID)",id,rg_gID
+            #print "(id,rg_gID)",id,rg_gID
             if id != rg_gID:
-                print "id != rg_gID"
-                print gene_file
                 geneSamList = getSamIDList(ch,rg_gID, gene_file)
                 id = rg_gID
                 if len(geneSamList) == 0:
@@ -2361,7 +2359,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
                             sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
+                            log.info('Now converting: ' + rg_gID + ', ' + rg_rID)
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos) + "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2388,7 +2387,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
                             sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            log.info('Now converting: ' + rg_gID + ', ' + rg_rID)
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
 
@@ -2487,7 +2487,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(reverse_cigar,reverse_seq)
                             sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            log.info('Now converting: ' + rg_gID + ', ' + rg_rID)
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
@@ -2581,7 +2582,8 @@ def MainSubCompare(new_read_file,rnameList,SAM_atline):
                             gene_seqDic = {}
                             gene_coorDic,gene_cigarDic,gene_seqDic = addCigarSeq(g_cigar,g_seq)
                             sys.stderr.write("\n")
-                            log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
+                            log.info('Now converting: ' + rg_gID + ', ' + rg_rID)
+                            #log.info('Now converting: '+ rg_gID + " len:" + str(len(g_seq))+ " dir:" + str(rreverse) + "(" + gID + "," + g_ref+ ","+ str(g_pos)+ "," + str(greverse)+ ")")
                         else:
                             sys.stderr.write(".")
                         #end if (gID != p_gid) and (g_ref != p_gref) and (g_pos != p_gpos):
@@ -2746,20 +2748,9 @@ def main():
         else:
             raise
 
-    argvs = sys.argv
-    argc = len(argvs)
-    #print argvs
-    #print argc
+    
     rnameList = []
-    SAM_header = []
     rnameList = getRefName(read_sam_file,rnameList)
-    log.info("rnamList size: " + str(len(rnameList)))
-    log.info("Analyse rnameList start: " + argvs[1])
-    log.info("Analyse rnameList end: " + argvs[2])
-    start = int(argvs[1])
-    end = int(argvs[2])
-    rnameList = rnameList[start:end]
-    out_file = out_file + "." + str(start) + "-" + str(end)
     
     getChrSAMfile(gene_sam_file,rnameList)
     
